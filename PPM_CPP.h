@@ -14,7 +14,7 @@ PPM::PPM(const PPM& other) : comment(other.comment), magic(other.magic), width(o
 // Move Constructor
 PPM::PPM(PPM&& other) noexcept : comment(std::move(other.comment)), magic(std::move(other.magic)), width(other.width), height(other.height), maxColor(other.maxColor), pixels(std::move(other.pixels)) {}
 
-// Constructor to Read from File !!! UNDERSTAND AND FIX THIS
+// Constructor to Read from File
 PPM::PPM(std::ifstream& inputFile) {
     if (!inputFile) {
         std::cerr << "Error: Cannot open file.\n";
@@ -22,16 +22,32 @@ PPM::PPM(std::ifstream& inputFile) {
     }
 
     inputFile >> magic;
+
     if (magic != "P6") {
-        std::cerr << "Error: Unsupported PPM format.\n";
+        std::cerr << "Error: Unsupported PPM format. This app works with P6 format.\n";
         return;
     }
-
+    inputFile.ignore();
+    std::string temp = "";
+    std::streampos currentPos = inputFile.tellg();
+    std::getline(inputFile, temp);
+    if (temp[0] != '#') {
+        inputFile.seekg(currentPos);
+    }
     inputFile >> width >> height >> maxColor;
-    inputFile.ignore(); // Skip single whitespace after maxColor
+    inputFile.ignore();
 
-    pixels.resize(width * height);
-    inputFile.read(reinterpret_cast<char*>(pixels.data()), pixels.size() * sizeof(Pixel));
+    pixels.reserve(width * height);
+
+    std::string rChar, gChar, bChar;
+    for (int i = 0; i < width * height; ++i) {
+        inputFile >> rChar >> gChar >> bChar;
+        pixels.push_back({
+            static_cast<unsigned char>(std::stoi(rChar, nullptr, 16)),
+            static_cast<unsigned char>(std::stoi(gChar, nullptr, 16)),
+            static_cast<unsigned char>(std::stoi(bChar, nullptr, 16))
+        });
+    }
 }
 
 // Destructor !!! FINISH THIS
@@ -103,8 +119,8 @@ void PPM::saveImageToFile(std::string filename) const {
     }
 
     outFile << magic << "\n"
-            << width << " " << height << "\n"
-            << maxColor << "\n";
+        << width << " " << height << "\n"
+        << maxColor << "\n";
 
     outFile.write(reinterpret_cast<const char*>(pixels.data()), pixels.size() * sizeof(Pixel));
 }
