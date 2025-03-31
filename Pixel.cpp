@@ -52,12 +52,28 @@ const unsigned int& Pixel::operator[](const char* i) const
    {
     throw InputOutOfBoundsException("Not allowed", i); 
    }
-   
+    
 };
 
 
 unsigned int& Pixel::operator[](const char* i)
 {
+   if(strcmp(i,"Red") == 0)
+   {
+      return r;
+   }
+   else if(strcmp(i,"Green") == 0)
+   {
+     return g; 
+   }
+   else if(strcmp(i,"Blue") == 0)
+   {
+     return b; 
+   }
+   else
+   {
+    throw InputOutOfBoundsException("Not allowed", i); 
+   }
    
 };
 
