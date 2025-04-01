@@ -55,5 +55,4 @@ public:
 };
 
 #include "PPM_cpp.h";
-
 #endif
