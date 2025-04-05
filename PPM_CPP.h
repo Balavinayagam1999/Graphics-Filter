@@ -27,28 +27,25 @@ PPM::PPM(std::ifstream& inputFile) {
         std::cerr << "Error: Unsupported PPM format. This app works with P3 format.\n";
         std::exit(EXIT_FAILURE);
     }
-    inputFile.ignore();
-    std::string temp = "";
-    std::streampos currentPos = inputFile.tellg();
+
+    std::string temp;
     while (std::getline(inputFile, temp)) {
-        if (temp[0] != '#') {
-            inputFile.seekg(currentPos);
-            break;
+        if (temp.empty()) continue;
+        if (temp[0] == '#') {
+            comment += temp + "\n";
         }
         else {
-            comment += temp + "\n";
-            currentPos = inputFile.tellg();
+            std::istringstream lineStream(temp);
+            lineStream >> width >> height;
+            break;
         }
     }
 
-    if (inputFile >> width >> height >> maxColor) {
-        if (maxColor <= 0 || width <= 0 || height <= 0) {
-            std::cerr << "Error: Bad input for width, height, or max color.\n";
-            std::exit(EXIT_FAILURE);
-        }
-    }
-    else{
-        std::cerr << "Error: Cannot get width, height, or max color.\n";
+    std::getline(inputFile, temp);
+    maxColor = static_cast<unsigned int>(stoi(temp));
+
+    if (width <= 0 || height <= 0 || maxColor <= 0) {
+        std::cerr << "Error: Bad input for width, height, or max color.\n";
         std::exit(EXIT_FAILURE);
     }
 
