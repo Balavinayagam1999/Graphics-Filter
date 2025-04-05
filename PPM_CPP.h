@@ -3,6 +3,7 @@
 
 #include "PPM.h"
 #include <iostream>
+#include <sstream>
 
 
 // Default Constructor
